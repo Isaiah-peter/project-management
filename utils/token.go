@@ -1,24 +1,28 @@
 package utils
 
 import (
+	"fmt"
+	"log"
+	"net/http"
 	"time"
 
 	"project-management/database"
+	"project-management/models"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
 var db = database.GetDB()
 
 type Token struct {
-	UserId  string
-	IsAdmin bool
+	UserId int
+	Email  string
 	jwt.StandardClaims
 }
 
 func GenerateToken(password, email string) map[string]interface{} {
-	user := models.User
+	user := &models.User{}
 
 	if err := db.Where("email =?", email).First(user).Error; err != nil {
 		var resp = map[string]interface{}{"status": false, "message": "Email address not found"}
@@ -33,9 +37,9 @@ func GenerateToken(password, email string) map[string]interface{} {
 		return resp
 	}
 
-	tk := &models.Token{
-		UserID:  int(user.ID),
-		IsAdmin: user.IsAdmin,
+	tk := &Token{
+		UserId: int(user.Model.ID),
+		Email:  user.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireAt,
 		},
@@ -53,4 +57,53 @@ func GenerateToken(password, email string) map[string]interface{} {
 	resp["user"] = user
 	return resp
 
+}
+
+func ExtractToken(r *http.Request) string {
+	token := r.Header.Get("token")
+	return token
+}
+
+func VerifyToken(r *http.Request) (*jwt.Token, error) {
+	tokenString := ExtractToken(r)
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signin method: %v", t.Header["alg"])
+		}
+		return []byte("my_secret_key"), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+
+func ValidateToken(r *http.Request) (string, error) {
+	token, err := VerifyToken(r)
+	msg := ""
+	if err != nil {
+		log.Panic(err)
+		msg = fmt.Sprintln("token verification fail")
+	}
+	claim, ok := token.Claims.(*Token)
+	if !ok && token.Valid {
+		log.Panic(ok)
+		msg = fmt.Sprintln("token is not correct or bad token")
+	}
+	if claim.ExpiresAt < time.Now().Local().Unix() {
+		msg = fmt.Sprintf("token exprired")
+	}
+	return msg, nil
+}
+
+func UseToken(r *http.Request) jwt.MapClaims {
+	token, err := VerifyToken(r)
+	if err != nil {
+		panic(err)
+	}
+	claim, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		panic(ok)
+	}
+	return claim
 }
