@@ -6,58 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"project-management/database"
-	"project-management/models"
-
 	"github.com/dgrijalva/jwt-go"
-	"golang.org/x/crypto/bcrypt"
 )
-
-var db = database.GetDB()
-
-type Token struct {
-	UserId int
-	Email  string
-	jwt.StandardClaims
-}
-
-func GenerateToken(password, email string) map[string]interface{} {
-	user := &models.User{}
-
-	if err := db.Where("email =?", email).First(user).Error; err != nil {
-		var resp = map[string]interface{}{"status": false, "message": "Email address not found"}
-		return resp
-	}
-
-	expireAt := time.Now().Add(time.Minute * 100000).Unix()
-
-	msg, errf := Checkpassword(user.Password, password)
-	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword {
-		var resp = map[string]interface{}{"status": false, "message": msg}
-		return resp
-	}
-
-	tk := &Token{
-		UserId: int(user.Model.ID),
-		Email:  user.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireAt,
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
-
-	tokenString, err := token.SignedString([]byte("my_secret_key"))
-	if err != nil {
-		panic(err)
-	}
-
-	var resp = map[string]interface{}{"status": false, "message": "logged in"}
-	resp["token"] = tokenString
-	resp["user"] = user
-	return resp
-
-}
 
 func ExtractToken(r *http.Request) string {
 	token := r.Header.Get("token")
@@ -85,12 +35,12 @@ func ValidateToken(r *http.Request) (string, error) {
 		log.Panic(err)
 		msg = fmt.Sprintln("token verification fail")
 	}
-	claim, ok := token.Claims.(*Token)
+	claim, ok := token.Claims.(jwt.MapClaims)
 	if !ok && token.Valid {
 		log.Panic(ok)
 		msg = fmt.Sprintln("token is not correct or bad token")
 	}
-	if claim.ExpiresAt < time.Now().Local().Unix() {
+	if claim.VerifyExpiresAt(time.Now().Local().Unix(), true) == false {
 		msg = fmt.Sprintf("token exprired")
 	}
 	return msg, nil

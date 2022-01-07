@@ -46,7 +46,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to convert json to golang understandable language"))
 	}
-	u := utils.GenerateToken(newUser.Password, newUser.Email)
+	u := models.GenerateToken(newUser.Password, newUser.Email)
 	res, err := json.Marshal(u)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
