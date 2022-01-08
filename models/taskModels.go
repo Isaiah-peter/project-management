@@ -8,3 +8,9 @@ type Task struct {
 	TaskName  string `json:"task_name"`
 	Items     []Item `json:"items"`
 }
+
+func (t *Task) CreateTask() *Task {
+	db.NewRecord(t)
+	db.Create(t)
+	return t
+}

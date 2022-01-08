@@ -8,3 +8,9 @@ type AddProjctModel struct {
 	ProjectName string `json:"project_name"`
 	Task        []Task `json:"task"`
 }
+
+func (p *AddProjctModel) CreateProject() *AddProjctModel {
+	db.NewRecord(p)
+	db.Create(p)
+	return p
+}
