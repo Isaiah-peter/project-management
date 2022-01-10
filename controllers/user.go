@@ -21,6 +21,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error while trying to get all user"))
 	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(res)
 
 }
