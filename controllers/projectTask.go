@@ -27,3 +27,16 @@ func CreateProjectTask(w http.ResponseWriter, g http.Response, r *http.Request) 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(res)
 }
+
+func GetProjectTask(w http.ResponseWriter, r *http.Request) {
+	utils.UseToken(r)
+	u := db.Preload("Items").Find(&projectTask).Value
+	res, err := json.Marshal(u)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("fail to send result"))
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
