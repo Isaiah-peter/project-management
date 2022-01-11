@@ -15,7 +15,7 @@ var (
 
 func CreateProjectTaskItem(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	if err := json.NewDecoder(r.Body).Decode(projectTask); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&projectTask); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(decodeMsg))
 	}
@@ -24,7 +24,7 @@ func CreateProjectTaskItem(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to return"))
-		w.Write([]byte(fmt.Sprintln("%v", err)))
+		w.Write([]byte(fmt.Sprintf("%v", err)))
 	}
 	w.Write(res)
 }
