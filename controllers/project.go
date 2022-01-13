@@ -83,3 +83,42 @@ func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
+
+func UpdateProject(w http.ResponseWriter, r *http.Request) {
+	utils.UseToken(r)
+	project := &models.AddProjctModel{}
+	var Id = mux.Vars(r)
+	projectId, err := strconv.ParseInt(Id["id"], 0, 0)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(project); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		log.Panic(err)
+	}
+
+	u := db.Where("ID=?", projectId).Find(project)
+	if project.ProjectName != "" {
+		project.ProjectName = project.ProjectName
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	u.Save(project)
+}
+
+func DeleteProject(w http.ResponseWriter, r *http.Request) {
+	project := &models.AddProjctModel{}
+	utils.UseToken(r)
+	var id = mux.Vars(r)
+	projectId, err := strconv.ParseInt(id["id"], 0, 0)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	u := db.Where("ID=?", projectId).Delete(&project)
+	res, _ := json.Marshal(u)
+	w.Header().Set("Content-Type", "pkglication/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
