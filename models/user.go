@@ -25,7 +25,13 @@ type Token struct {
 	jwt.StandardClaims
 }
 
-var db = database.GetDB()
+var db *gorm.DB
+
+func Init() {
+	database.Connect()
+	db = database.GetDB()
+	db.AutoMigrate(&User{}, &AddProjctModel{}, &Task{}, &Item{})
+}
 
 func (u *User) CreateUser() *User {
 	hashpassword, err := utils.GeneratePassword(u.Password)
