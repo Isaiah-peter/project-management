@@ -30,7 +30,7 @@ func CreateProjectTask(w http.ResponseWriter, g http.Response, r *http.Request) 
 
 func GetProjectTask(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	u := db.Preload("Items").Find(&projectTask).Value
+	u := db.Preload("Items").Find(&projectTask)
 	res, err := json.Marshal(u)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

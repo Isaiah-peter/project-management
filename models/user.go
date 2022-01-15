@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -27,10 +27,13 @@ type Token struct {
 
 var db *gorm.DB
 
-func Init() {
+func init() {
 	database.Connect()
 	db = database.GetDB()
-	db.AutoMigrate(&User{}, &AddProjctModel{}, &Task{}, &Item{})
+	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Project{})
+	db.AutoMigrate(&Task{})
+	db.AutoMigrate(&Item{})
 }
 
 func (u *User) CreateUser() *User {
@@ -39,7 +42,6 @@ func (u *User) CreateUser() *User {
 		log.Panic(err)
 	}
 	u.Password = hashpassword
-	db.NewRecord(u)
 	db.Create(u)
 	return u
 }

@@ -13,12 +13,12 @@ import (
 )
 
 var (
-	newProject models.AddProjctModel
+	newProject models.Project
 )
 
 func CreateProject(w http.ResponseWriter, r *http.Request) {
 	token := utils.UseToken(r)
-	newProject := &models.AddProjctModel{}
+	newProject := &models.Project{}
 	Id, err := strconv.ParseInt(fmt.Sprintf("%f", token["UserId"]), 0, 0)
 	if err != nil {
 		log.Panic(err)
@@ -41,8 +41,8 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 
 func GetProject(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	project := &models.AddProjctModel{}
-	u := db.Preload("Task").Find(project).Value
+	project := &models.Project{}
+	u := db.Preload("Task").Find(project)
 	res, err := json.Marshal(u)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -55,14 +55,14 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 
 func GetProjectById(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	newProject := &models.AddProjctModel{}
+	newProject := &models.Project{}
 	muxid := mux.Vars(r)
 	id, err := strconv.ParseInt(muxid["id"], 0, 0)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	u := db.Where("ID =?", id).Find(&newProject).Value
+	u := db.Where("ID =?", id).Find(&newProject)
 	res, errRes := json.Marshal(u)
 	if errRes != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -78,7 +78,7 @@ func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Panic(err)
 	}
-	u := db.Where("user_id=?", userId).Find(&newProject).Value
+	u := db.Where("user_id=?", userId).Find(&newProject)
 	res, _ := json.Marshal(u)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
@@ -86,7 +86,7 @@ func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
 
 func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	project := &models.AddProjctModel{}
+	project := &models.Project{}
 	var Id = mux.Vars(r)
 	projectId, err := strconv.ParseInt(Id["id"], 0, 0)
 	if err != nil {
@@ -107,7 +107,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProject(w http.ResponseWriter, r *http.Request) {
-	project := &models.AddProjctModel{}
+	project := &models.Project{}
 	utils.UseToken(r)
 	var id = mux.Vars(r)
 	projectId, err := strconv.ParseInt(id["id"], 0, 0)

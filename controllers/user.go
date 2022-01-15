@@ -67,7 +67,7 @@ func GetSingleUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalln(err)
 	}
 
-	u := db.Where("ID =?", ID).Find(user).Value
+	u := db.Where("ID =?", ID).Find(user)
 	res, errr := json.Marshal(u)
 	if errr != nil {
 		w.WriteHeader(http.StatusBadRequest)
