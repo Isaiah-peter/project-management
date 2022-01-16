@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"project-management/models"
 	"project-management/utils"
+	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -39,4 +43,26 @@ func GetProjectTask(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
+}
+
+func GetProjectTaskByProjectId(w http.ResponseWriter, r *http.Request) {
+	utils.UseToken(r)
+	projectId := mux.Vars(r)
+	id, err := strconv.ParseInt(projectId["id"], 0, 0)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	u := db.Where("project_id = ?", id).First(&projectTask)
+	res, err1 := json.Marshal(u)
+	if err1 != nil {
+		log.Panic(err1)
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(res)
+}
+
+func UpdateProjectTask(w http.ResponseWriter, r *http.Request) {
+	utils.UseToken(r)
+
 }

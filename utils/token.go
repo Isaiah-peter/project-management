@@ -28,7 +28,7 @@ func VerifyToken(r *http.Request) (*jwt.Token, error) {
 	return token, nil
 }
 
-func ValidateToken(r *http.Request) (string, error) {
+func ValidateToken(r *http.Request) (string, *jwt.Token) {
 	token, err := VerifyToken(r)
 	msg := ""
 	if err != nil {
@@ -39,17 +39,20 @@ func ValidateToken(r *http.Request) (string, error) {
 	if !ok && token.Valid {
 		log.Panic(ok)
 		msg = fmt.Sprintln("token is not correct or bad token")
+		token = nil
 	}
-	if claim.VerifyExpiresAt(time.Now().Local().Unix(), true) == false {
-		msg = fmt.Sprintf("token exprired")
+	if !claim.VerifyExpiresAt(time.Now().Local().Unix(), true) {
+		msg = "token exprired"
+		token = nil
 	}
-	return msg, nil
+	return msg, token
 }
 
 func UseToken(r *http.Request) jwt.MapClaims {
-	token, err := VerifyToken(r)
-	if err != nil {
-		panic(err)
+	msg, token := ValidateToken(r)
+	if msg != "" {
+		fmt.Println(msg)
+		return nil
 	}
 	claim, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
