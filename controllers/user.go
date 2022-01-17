@@ -15,8 +15,8 @@ var db = database.GetDB()
 
 func GetUser(w http.ResponseWriter, r *http.Request) {
 	var newUser []models.User
-	u := db.Find(&newUser).Limit(10)
-	res, err := json.Marshal(u)
+	db.Find(&newUser).Limit(10)
+	res, err := json.Marshal(&newUser)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error while trying to get all user"))
@@ -59,16 +59,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSingleUser(w http.ResponseWriter, r *http.Request) {
-	user := models.User{}
 	token := utils.UseToken(r)
-	ID, err := strconv.ParseInt(fmt.Sprintf("%.f", token["UserID"]), 0, 0)
+	fmt.Println(token["UserID"])
+	user := models.User{}
+	ID, err := strconv.ParseInt(fmt.Sprintf("%.f", token["UserId"]), 0, 0)
+	fmt.Print(ID)
 	if err != nil {
 		fmt.Println("error while parsing")
 		log.Fatalln(err)
 	}
 
-	u := db.Where("ID =?", ID).Find(user)
-	res, errr := json.Marshal(u)
+	db.Find(&user, ID)
+	res, errr := json.Marshal(&user)
 	if errr != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error while changing to json"))

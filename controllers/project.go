@@ -42,8 +42,8 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 func GetProject(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
 	project := &models.Project{}
-	u := db.Preload("Task").Find(project)
-	res, err := json.Marshal(u)
+	db.Preload("Task").Find(project)
+	res, err := json.Marshal(&project)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to send result"))
@@ -62,8 +62,8 @@ func GetProjectById(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
-	u := db.Where("ID =?", id).Find(&newProject)
-	res, errRes := json.Marshal(u)
+	db.Where("ID =?", id).Preload("Task").Find(&newProject)
+	res, errRes := json.Marshal(&newProject)
 	if errRes != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to return value"))
@@ -78,8 +78,8 @@ func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Panic(err)
 	}
-	u := db.Where("user_id=?", userId).Find(&newProject)
-	res, _ := json.Marshal(u)
+	db.Where("user_id=?", userId).Find(&newProject)
+	res, _ := json.Marshal(&newProject)
 	w.WriteHeader(http.StatusOK)
 	w.Write(res)
 }
@@ -99,11 +99,10 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	u := db.Where("ID=?", projectId).Find(project)
-	if project.ProjectName != "" {
-		project.ProjectName = project.ProjectName
-	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	u.Save(project)
+	w.WriteHeader(http.StatusOK)
+	u.Save(&project)
+	w.Write([]byte("successfully update"))
 }
 
 func DeleteProject(w http.ResponseWriter, r *http.Request) {
@@ -115,10 +114,9 @@ func DeleteProject(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
-	u := db.Where("ID=?", projectId).Delete(&project)
-	res, _ := json.Marshal(u)
+	db.Where("ID=?", projectId).Delete(&project)
 	w.Header().Set("Content-Type", "pkglication/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.WriteHeader(http.StatusOK)
-	w.Write(res)
+	w.Write([]byte("successfully delete project"))
 }

@@ -34,8 +34,8 @@ func CreateProjectTask(w http.ResponseWriter, g http.Response, r *http.Request) 
 
 func GetProjectTask(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	u := db.Preload("Items").Find(&projectTask)
-	res, err := json.Marshal(u)
+	db.Preload("Items").Find(&projectTask)
+	res, err := json.Marshal(&projectTask)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to send result"))
@@ -53,8 +53,8 @@ func GetProjectTaskByProjectId(w http.ResponseWriter, r *http.Request) {
 		log.Panic(err)
 	}
 
-	u := db.Where("project_id = ?", id).First(&projectTask)
-	res, err1 := json.Marshal(u)
+	db.Where("project_id = ?", id).Preload("Items").First(&projectTask)
+	res, err1 := json.Marshal(&projectTask)
 	if err1 != nil {
 		log.Panic(err1)
 	}

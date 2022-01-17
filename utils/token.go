@@ -2,16 +2,20 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"time"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
 func ExtractToken(r *http.Request) string {
-	token := r.Header.Get("token")
-	return token
+	bearToken := r.Header.Get("Authorization")
+	strArr := strings.Split(bearToken, " ")
+	fmt.Println(strArr)
+	if len(strArr) == 2 {
+		return strArr[1]
+	}
+	return ""
 }
 
 func VerifyToken(r *http.Request) (*jwt.Token, error) {
@@ -28,35 +32,26 @@ func VerifyToken(r *http.Request) (*jwt.Token, error) {
 	return token, nil
 }
 
-func ValidateToken(r *http.Request) (string, *jwt.Token) {
+func ValidToken(r *http.Request) error {
 	token, err := VerifyToken(r)
-	msg := ""
 	if err != nil {
-		log.Panic(err)
-		msg = fmt.Sprintln("token verification fail")
+		return err
 	}
-	claim, ok := token.Claims.(jwt.MapClaims)
-	if !ok && token.Valid {
-		log.Panic(ok)
-		msg = fmt.Sprintln("token is not correct or bad token")
-		token = nil
+	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
+		return err
 	}
-	if !claim.VerifyExpiresAt(time.Now().Local().Unix(), true) {
-		msg = "token exprired"
-		token = nil
-	}
-	return msg, token
+	return nil
 }
 
 func UseToken(r *http.Request) jwt.MapClaims {
-	msg, token := ValidateToken(r)
-	if msg != "" {
-		fmt.Println(msg)
-		return nil
+	token, err := VerifyToken(r)
+	if err != nil {
+		panic(err)
 	}
 	claim, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		panic(ok)
 	}
+	fmt.Print(claim)
 	return claim
 }

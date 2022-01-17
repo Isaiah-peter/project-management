@@ -31,8 +31,8 @@ func CreateProjectTaskItem(w http.ResponseWriter, r *http.Request) {
 
 func GetProjectTaskItem(w http.ResponseWriter, r *http.Request) {
 	utils.UseToken(r)
-	u := db.Find(&projectTaskItem)
-	res, err := json.Marshal(u)
+	db.Find(&projectTaskItem)
+	res, err := json.Marshal(&projectTaskItem)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("fail to send result"))

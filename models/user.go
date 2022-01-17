@@ -46,6 +46,12 @@ func (u *User) CreateUser() *User {
 	return u
 }
 
+func GetUserById(Id int64) (*User, *gorm.DB) {
+	var getUser User
+	db := db.Where("ID=?", Id).Find(&getUser)
+	return &getUser, db
+}
+
 func GenerateToken(password, email string) map[string]interface{} {
 	user := &User{}
 
@@ -77,7 +83,7 @@ func GenerateToken(password, email string) map[string]interface{} {
 		panic(err)
 	}
 
-	var resp = map[string]interface{}{"status": false, "message": "logged in"}
+	var resp = map[string]interface{}{"status": true, "message": "logged in"}
 	resp["token"] = tokenString
 	resp["user"] = user
 	return resp
