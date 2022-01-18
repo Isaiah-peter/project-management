@@ -59,7 +59,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetSingleUser(w http.ResponseWriter, r *http.Request) {
-	token := utils.UseToken(r)
+	token := utils.UseToken(w, r)
 	fmt.Println(token["UserID"])
 	user := models.User{}
 	ID, err := strconv.ParseInt(fmt.Sprintf("%.f", token["UserId"]), 0, 0)

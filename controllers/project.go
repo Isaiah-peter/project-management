@@ -17,7 +17,7 @@ var (
 )
 
 func CreateProject(w http.ResponseWriter, r *http.Request) {
-	token := utils.UseToken(r)
+	token := utils.UseToken(w, r)
 	newProject := &models.Project{}
 	Id, err := strconv.ParseInt(fmt.Sprintf("%f", token["UserId"]), 0, 0)
 	if err != nil {
@@ -40,7 +40,7 @@ func CreateProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProject(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	project := &models.Project{}
 	db.Preload("Task").Find(project)
 	res, err := json.Marshal(&project)
@@ -54,7 +54,7 @@ func GetProject(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProjectById(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	newProject := &models.Project{}
 	muxid := mux.Vars(r)
 	id, err := strconv.ParseInt(muxid["id"], 0, 0)
@@ -73,7 +73,7 @@ func GetProjectById(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
-	token := utils.UseToken(r)
+	token := utils.UseToken(w, r)
 	userId, err := strconv.ParseInt(fmt.Sprintf("%.f", token["UserId"]), 0, 0)
 	if err != nil {
 		log.Panic(err)
@@ -85,7 +85,7 @@ func GetProjectByUserId(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProject(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	project := &models.Project{}
 	var Id = mux.Vars(r)
 	projectId, err := strconv.ParseInt(Id["id"], 0, 0)
@@ -107,7 +107,7 @@ func UpdateProject(w http.ResponseWriter, r *http.Request) {
 
 func DeleteProject(w http.ResponseWriter, r *http.Request) {
 	project := &models.Project{}
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	var id = mux.Vars(r)
 	projectId, err := strconv.ParseInt(id["id"], 0, 0)
 	if err != nil {

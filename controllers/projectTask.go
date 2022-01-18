@@ -16,7 +16,7 @@ var (
 )
 
 func CreateProjectTask(w http.ResponseWriter, g http.Response, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	if err := json.NewDecoder(r.Body).Decode(&projectTask); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("error while decoding"))
@@ -33,7 +33,7 @@ func CreateProjectTask(w http.ResponseWriter, g http.Response, r *http.Request) 
 }
 
 func GetProjectTask(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	db.Preload("Items").Find(&projectTask)
 	res, err := json.Marshal(&projectTask)
 	if err != nil {
@@ -46,7 +46,7 @@ func GetProjectTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetProjectTaskByProjectId(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 	projectId := mux.Vars(r)
 	id, err := strconv.ParseInt(projectId["id"], 0, 0)
 	if err != nil {
@@ -63,6 +63,6 @@ func GetProjectTaskByProjectId(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateProjectTask(w http.ResponseWriter, r *http.Request) {
-	utils.UseToken(r)
+	utils.UseToken(w, r)
 
 }
