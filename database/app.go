@@ -3,13 +3,15 @@ package database
 import (
 	"log"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
 func Connect() {
-	d, err := gorm.Open("mysql", "isaiah:Etanuwoma18@/netfley?charset=utf8&parseTime=True&loc=Local")
+	dsn := "isaiah:Etanuwoma18@/simple-project-management?charset=utf8&parseTime=True&loc=Local"
+	d, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Panic(err)
 	}

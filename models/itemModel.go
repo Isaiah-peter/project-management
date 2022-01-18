@@ -1,6 +1,8 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Item struct {
 	gorm.Model
@@ -9,7 +11,6 @@ type Item struct {
 }
 
 func (i *Item) CreateTaskItem() *Item {
-	db.NewRecord(i)
 	db.Create(i)
 	return i
 }

@@ -1,6 +1,6 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
 type Task struct {
 	gorm.Model
@@ -10,7 +10,7 @@ type Task struct {
 }
 
 func (t *Task) CreateTask() *Task {
-	db.NewRecord(t)
+
 	db.Create(t)
 	return t
 }

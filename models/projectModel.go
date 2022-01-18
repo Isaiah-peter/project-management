@@ -1,16 +1,15 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import "gorm.io/gorm"
 
-type AddProjctModel struct {
+type Project struct {
 	gorm.Model
 	UserId      int64  `json:"user_id"`
 	ProjectName string `json:"project_name"`
 	Task        []Task
 }
 
-func (p *AddProjctModel) CreateProject() *AddProjctModel {
-	db.NewRecord(p)
+func (p *Project) CreateProject() *Project {
 	db.Create(p)
 	return p
 }

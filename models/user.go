@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -25,7 +25,16 @@ type Token struct {
 	jwt.StandardClaims
 }
 
-var db = database.GetDB()
+var db *gorm.DB
+
+func init() {
+	database.Connect()
+	db = database.GetDB()
+	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Project{})
+	db.AutoMigrate(&Task{})
+	db.AutoMigrate(&Item{})
+}
 
 func (u *User) CreateUser() *User {
 	hashpassword, err := utils.GeneratePassword(u.Password)
@@ -33,9 +42,14 @@ func (u *User) CreateUser() *User {
 		log.Panic(err)
 	}
 	u.Password = hashpassword
-	db.NewRecord(u)
 	db.Create(u)
 	return u
+}
+
+func GetUserById(Id int64) (*User, *gorm.DB) {
+	var getUser User
+	db := db.Where("ID=?", Id).Find(&getUser)
+	return &getUser, db
 }
 
 func GenerateToken(password, email string) map[string]interface{} {
@@ -69,7 +83,7 @@ func GenerateToken(password, email string) map[string]interface{} {
 		panic(err)
 	}
 
-	var resp = map[string]interface{}{"status": false, "message": "logged in"}
+	var resp = map[string]interface{}{"status": true, "message": "logged in"}
 	resp["token"] = tokenString
 	resp["user"] = user
 	return resp
