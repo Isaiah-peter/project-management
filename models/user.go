@@ -60,7 +60,7 @@ func GenerateToken(password, email string) map[string]interface{} {
 		return resp
 	}
 
-	expireAt := time.Now().Add(time.Minute * 100000).Unix()
+	expireAt := time.Now().Add(time.Minute * 1000).Unix()
 
 	msg, errf := utils.Checkpassword(user.Password, password)
 	if errf != nil && errf == bcrypt.ErrMismatchedHashAndPassword {

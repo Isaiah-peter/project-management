@@ -78,3 +78,35 @@ func GetSingleUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Write(res)
 }
+
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	utils.UseToken(w, r)
+	var user = models.User{}
+	var fetchUser = models.User{}
+	if err := json.NewDecoder(r.Body).Decode(*&user); err != nil {
+		log.Panic(err)
+	}
+
+	if user.Email != "" {
+		fetchUser.Email = user.Email
+	}
+	if user.FirstName != "" {
+		fetchUser.FirstName = user.FirstName
+	}
+
+	if user.LastName != "" {
+		fetchUser.LastName = user.LastName
+	}
+	if user.Password != "" {
+		hash, err := utils.GeneratePassword(user.Password)
+		if err != nil {
+			log.Panic(err)
+		}
+		fetchUser.Password = hash
+	}
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("successfully done"))
+
+}
